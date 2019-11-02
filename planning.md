@@ -5,7 +5,7 @@ db/codeclan_cinema.sql
 db/SqlRunner.rb
 db/console.rb
 
-customers table
+##customers table
 models/customer.rb
 - name
 - funds
@@ -18,7 +18,7 @@ delete_all()
 check_films()
 buy_ticket()
 
-films table
+##films table
 models/film.rb
 - id
 - title
@@ -30,7 +30,7 @@ delete()
 delete_all()
 check_customers()
 
-tickets table
+##tickets table
 models/tickets.rb
 - id
 - customer_id
@@ -47,10 +47,10 @@ most_sales() --> PDA
 check_film_sales(film)
 
 +++++++++++++++++
-screenings table
+##screenings table
 models/screening.rb
 - id
-- screening_time
+- time
 - film_id
 - seats
 
