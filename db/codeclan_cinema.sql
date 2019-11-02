@@ -12,7 +12,7 @@ CREATE TABLE customers(
 CREATE TABLE films(
   id SERIAL4 PRIMARY KEY,
   title VARCHAR(255),
-  funds INT4
+  price INT4
 );
 
 CREATE TABLE tickets(
