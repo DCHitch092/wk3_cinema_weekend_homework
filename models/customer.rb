@@ -40,20 +40,18 @@ class Customer
     SqlRunner.run(sql, values)
   end
 
-  # def check_films()
-  #   sql = "SELECT films.* FROM films
-  #   INNER JOIN tickets
-  #   ON tickets.film_id = films.id
-  #   WHERE tickets.customer_id = $1"
-  #   values = [@id]
-  #   results = SqlRunner.run(sql, values).first
-  #   return results.map{ |film| Film.new(film)}
-  # end
+  def check_films()
+    sql = "SELECT films.* FROM films
+    INNER JOIN tickets
+    ON tickets.film_id = films.id
+    WHERE tickets.customer_id = $1"
+    values = [@id]
+    results = SqlRunner.run(sql, values)
+    return results.map{ |film| Film.new(film)}
+  end
 
-  #
   # def buy_ticket()
   # end
-
 
   def self.delete_all()
     sql = "DELETE FROM customers"
