@@ -1,6 +1,8 @@
 require('pry')
 require_relative('../db/SqlRunner')
 require_relative('../models/film')
+require_relative('../models/ticket')
+require_relative('../models/screening')
 
 class Customer
 
@@ -50,8 +52,57 @@ class Customer
     return results.map{ |film| Film.new(film)}
   end
 
-  # def buy_ticket()
-  # end
+  def buy_ticket(film_title, screening_time)
+    #finds film and screening entries
+    film = find_film_id_by_title(film_title)
+    screening = find_screening_id_by_time(screening_time)
+
+    #checks ticket availability in screening
+    return "no tickets available" if check_seats(screening) == false
+
+    #creates a new ticket entry in tickets table
+    created_ticket = Ticket.new('customer_id' => self.id, 'film_id' => film['id'], 'screening_id' => screening['id'])
+
+    # finds the film price
+    film_price = film['price'].to_i
+
+    # checks customer can afford
+    return "insufficient funds" if @funds < film_price
+
+    # remove_ticket_from_availability()
+    Screening.remove_ticket_from_availability(screening['id'].to_i, screening['seats'].to_i)
+
+    #reduces customers funds
+    self.reduce_customer_funds(film_price)
+
+    #saves ticket entry
+    created_ticket.save()
+    return "Ticket bought for #{film_title} for £#{film_price}"
+  end
+
+  def check_seats(screening)
+      return true if screening['seats'].to_i >= 0
+      return false
+  end
+
+  def find_screening_id_by_time(screen_time)
+    sql = "SELECT screenings.* FROM screenings
+    WHERE time = $1"
+    values = [screen_time]
+    return SqlRunner.run( sql, values).first
+  end
+
+  def find_film_id_by_title(film_title)
+    sql = "SELECT films.* FROM films
+    WHERE title = $1"
+    values = [film_title]
+    return SqlRunner.run(  sql,  values).first
+  end
+
+  def reduce_customer_funds(amount)
+    self.funds -= amount
+    self.update()
+  end
 
   def self.delete_all()
     sql = "DELETE FROM customers"
