@@ -4,21 +4,23 @@ require_relative('../db/SqlRunner')
 class Ticket
 
   attr_reader :id, :customer_id, :film_id, :screening_id
+  attr_accessor :status
 
   def initialize(options)
     @id = options['id'].to_i if options['id']
     @customer_id = options['customer_id'].to_i
     @film_id = options['film_id'].to_i
     @screening_id = options['screening_id'].to_i
+    @status = options['status']
   end
 
   def save()
     sql = "INSERT INTO tickets
-    ( customer_id, film_id, screening_id)
+    ( customer_id, film_id, screening_id, status)
     VALUES
-    ( $1, $2, $3)
+    ( $1, $2, $3, $4)
     RETURNING id"
-    values = [ @customer_id, @film_id, @screening_id]
+    values = [ @customer_id, @film_id, @screening_id, @status]
     result = SqlRunner.run(sql, values).first
     @id = result['id'].to_i
   end
@@ -26,9 +28,18 @@ class Ticket
   def update()
     sql = "UPDATE tickets
     SET customer_id = $1,
-    film_id = $2
-    WHERE id = $3"
-    values = [@customer_id, @film_id, @id]
+    film_id = $2,
+    status = $3
+    WHERE id = $4"
+    values = [@customer_id, @film_id, @status, @id]
+    SqlRunner.run(sql, values)
+  end
+
+  def status_bought(id)
+    sql = "UPDATE tickets
+    SET status = $1
+    WHERE id = $2"
+    values('bought',id)
     SqlRunner.run(sql, values)
   end
 
@@ -37,6 +48,12 @@ class Ticket
     where id = $1"
     values = [@id]
     SqlRunner.run(sql, values)
+  end
+
+  def self.all()
+    sql = "SELECT * FROM tickets"
+    result = SqlRunner.run(sql)
+    return result[0]
   end
 
   def self.check_film_ticket_total(film_title)

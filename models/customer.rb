@@ -61,7 +61,13 @@ class Customer
     return "no tickets available" if check_seats(screening) == false
 
     #creates a new ticket entry in tickets table
-    created_ticket = Ticket.new('customer_id' => self.id, 'film_id' => film['id'], 'screening_id' => screening['id'])
+    created_ticket = reserve_ticket(film, screening)
+
+    # remove_ticket_from_availability()
+    Screening.remove_ticket_from_availability(screening['id'].to_i, screening['seats'].to_i)
+
+    #saves ticket entry
+    created_ticket.save()
 
     # finds the film price
     film_price = film['price'].to_i
@@ -69,16 +75,24 @@ class Customer
     # checks customer can afford
     return "insufficient funds" if @funds < film_price
 
-    # remove_ticket_from_availability()
-    Screening.remove_ticket_from_availability(screening['id'].to_i, screening['seats'].to_i)
-
     #reduces customers funds
     self.reduce_customer_funds(film_price)
 
-    #saves ticket entry
-    created_ticket.save()
+    #defines ticket as bought
+    # Ticket.status_bought(created_ticket['id'])
+    created_ticket.status = "bought"
+
+    #  = {'status' => 'bought'}
+    # # # created_ticket['status'] = "bought"
+    created_ticket.update()
+
     return "Ticket bought for #{film_title} for £#{film_price}"
   end
+
+  def reserve_ticket(film, screening)
+    created_ticket = Ticket.new('customer_id' => self.id, 'film_id' => film['id'], 'screening_id' => screening['id'], 'status' => "reserved")
+  end
+
 
   def check_seats(screening)
       return true if screening['seats'].to_i >= 0
