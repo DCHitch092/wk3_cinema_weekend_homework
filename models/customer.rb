@@ -73,7 +73,11 @@ class Customer
     film_price = film['price'].to_i
 
     # checks customer can afford
-    return "insufficient funds" if @funds < film_price
+    if @funds < film_price
+      Screening.return_ticket_to_availability(screening['id'].to_i, screening['seats'].to_i)
+      created_ticket.delete()
+      return "insufficient funds"
+    end
 
     #reduces customers funds
     self.reduce_customer_funds(film_price)

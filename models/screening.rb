@@ -60,6 +60,14 @@ class Screening
     SqlRunner.run(  sql, values)
     end
 
+  def self.return_ticket_to_availability(id, seats)
+    new_total = seats + 1
+    sql = "UPDATE screenings SET seats = $1
+    WHERE id = $2"
+    values = [new_total, id]
+    SqlRunner.run(  sql, values)
+  end
+
   def self.select()
     sql = "SELECT * from screenings"
     SqlRunner.run(sql)
